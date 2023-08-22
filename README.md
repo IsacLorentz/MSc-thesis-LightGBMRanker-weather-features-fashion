@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # KTH DA233X Machine Learning Master Thesis Repo 
 
 **Author**: Isac Lorentz
