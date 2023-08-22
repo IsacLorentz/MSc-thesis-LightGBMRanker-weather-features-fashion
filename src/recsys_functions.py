@@ -361,22 +361,6 @@ def evaluate_splits(splits_data: list[pd.DataFrame], splits_probs: list[dict], k
 
     return splits_results_dict
 
-    # get per split metrics
-
-    # divide by total to get total metrics
-
-    # ta predictions och truths som inputs
-    # if isinstance(predictions[0], list) or isinstance(predictions[0], np.ndarray):
-    #     n = len(predictions)
-    #     if k > 1:
-    #         pass
-    #     else:
-    #         pass
-
-    # if isinstance(predictions[0], str):
-    #     pass
-
-
 if __name__ == "__main__":
 
     # input parsing
@@ -395,9 +379,6 @@ if __name__ == "__main__":
     order_data["ORDER_DATE"] = pd.to_datetime(order_data["ORDER_DATE"])
     order_data["date"] = order_data["ORDER_DATE"]
 
-    # not a good choice since I want to use iloc to loop over the rows
-    # order_data = order_data.set_index("ORDER_DATE", drop=True)
-
     # remove rows with customers than bought less than two items
     order_data = order_data[
         order_data["CUSTOMER_NO"].map(order_data["CUSTOMER_NO"].value_counts()) >= 2
@@ -413,38 +394,7 @@ if __name__ == "__main__":
     n_splits = 100
     splits = split_data(order_data, n_days=30, n_splits=n_splits)
 
-    # 2020-10-15
-    # 2020-10-01
-
-    # print(f"number of succesful splits out of {n_splits}: {len(splits)}")
-    # print(splits)
-    # truths = [split["validation"]["BEX_PRODUCT_NO"].tolist() for split in splits]
-    # predictions = generate_random_predictions(splits)
-    # evaluate(predictions, truths)
-
-    # if args.thesis:
-    #     thesis_mask = bex_data["PRODUCT_GROUP_LEVEL_1_DESCRIPTION"].isin(
-    #         ["clothing", "footwear", "accessories"]
-    #     )
-    #     bex_products_list = bex_data["BEX_PRODUCT_NO"].to_numpy()
-    #     print(f"shape bex products: {bex_products_list.shape}")
-    #     # fixa lower på product level description
-    #     bex_data = bex_data[thesis_mask]
-
-    # print(f"shape bex products: {bex_products_list.shape[0]}")
-
     popular_predictions = generate_popular_predictions(splits)
-
-    # random_predictions = generate_random_predictions(splits)
-
-    # print(f'random predictions: {random_predictions}')
-    # print(f"first item of split:")
-    # print(splits[0]["validation"])
-    # print(splits[0]["validation"].iloc[0])
-
-    # evaluate(prediction_probs=random_predictions[0]['probabilities_in_split'][0], bex_products_list=random_predictions[0]['BEX_PRODUCT_NO_IN_SPLIT'][0], truth=splits[0]['truth'].iloc[0]['BEX_PRODUCT_NO'])
-
-    # results = evaluate_splits(splits, random_predictions, k=100)
 
     popular_results = evaluate_splits(splits, popular_predictions, k=10)
 

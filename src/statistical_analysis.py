@@ -219,7 +219,8 @@ with open(filepath, "a") as f:
 
 def kaggle_linear_assumptions():
 
-    # code from: https://www.kaggle.com/code/shrutimechlearn/step-by-step-assumptions-linear-regression
+    # The code in this function is adapted from a Kaggle notebook by Shruti Iyyer (Apache 2.0 licence)
+    # https://www.kaggle.com/code/shrutimechlearn/step-by-step-assumptions-linear-regression
 
     import matplotlib.pyplot as plt
     import numpy as np
@@ -888,7 +889,8 @@ for sma in smas:
 
     def kaggle_linear_assumptions():
 
-        # Code adapted from: https://www.kaggle.com/code/shrutimechlearn/step-by-step-assumptions-linear-regression
+        # The code in this function is adapted from a Kaggle notebook by Shruti Iyyer (Apache 2.0 licence)
+        # https://www.kaggle.com/code/shrutimechlearn/step-by-step-assumptions-linear-regression
 
         import matplotlib.pyplot as plt
         import numpy as np
