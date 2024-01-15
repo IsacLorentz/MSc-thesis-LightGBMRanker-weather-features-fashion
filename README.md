@@ -6,9 +6,9 @@
 
 # Report file
 
-See report folder. DIVA link is comming soon.
+[Report in DiVA](https://kth.diva-portal.org/smash/get/diva2:1816013/FULLTEXT01.pdf)
 
-# Languages and Technologies
+# Languages and Libraries
 - **Python**
 - **SQL** and **Snowflake**
 - **GCP**
