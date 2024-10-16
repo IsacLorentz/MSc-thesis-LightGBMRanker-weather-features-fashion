@@ -69,7 +69,6 @@ stockholm_total = stockholm_total.sort_values(by=["ORDER_DATE_DIM_KEY"])
 stockholm_sales = stockholm_sales.merge(
     stockholm_total, how="inner", on="ORDER_DATE_DIM_KEY"
 )
-ph = 0
 # get the share of sold items
 stockholm_sales[f"{category}_part"] = (
     stockholm_sales["DAILY_QUANTITY"] / stockholm_sales["DAILY_TOTAL_QUANTITY"]
@@ -175,7 +174,6 @@ pearson_to_beat = 2 / np.sqrt(stockholm_sales_delta.shape[0])
 
 with open(filepath, "a") as f:
     f.write("----------- Pearson correlation --------------------\n")
-    # f.write(f'this is pearson 0::{abs(pearson[0])}\n')
     f.write(f"value to beat: {pearson_to_beat}\n")
     f.write(f"{relationship_exists_pearson}\n")
     f.write(str(pearson) + "\n")
@@ -847,7 +845,6 @@ for sma in smas:
 
     with open(filepath, "a") as f:
         f.write("----------- Pearson correlation --------------------\n")
-        # f.write(f'this is pearson 0::{abs(pearson[0])}\n')
         f.write(f"value to beat: {pearson_to_beat}\n")
         f.write(f"{relationship_exists_pearson}\n")
         f.write(str(pearson) + "\n")

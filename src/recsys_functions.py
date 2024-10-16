@@ -31,7 +31,7 @@ def split_data(
     df: pd.DataFrame, n_days=0, n_splits=0, start_date=None, labels=False, encode=False, thesis=True,
 ) -> list[dict]:
     df = df.reset_index(drop=True)
-    # make sure that the df is started by date
+    # make sure that the df is ordered by date
     df = df.sort_values(by="ORDER_DATE")
 
     if thesis:
@@ -67,7 +67,6 @@ def split_data(
             "PRODUCT_GROUP_LEVEL_3_DESCRIPTION",
         ]
 
-        # fundera på om jag verkligen behöver encodingsen
         encodings = {}
         for encode_column in encode_columns:
             fact = pd.factorize(df[encode_column].values.tolist(), sort=True)
@@ -78,13 +77,11 @@ def split_data(
     for i in range(n_splits):
         start_date_i = start_date + pd.Timedelta(f"{i}D")
         end_date_i = start_date_i + pd.Timedelta(f"{n_days}D")
-        # timea hur lång tid den tar
-        # kanske indexera på datumet istället borde vara snabba
+
         df_i_train_mask = (df["ORDER_DATE"] < end_date_i) & (
             df["ORDER_DATE"] >= start_date_i
         )
 
-        # kan det bli några fel här?
         df_i_train = df[df_i_train_mask]
         df_i_validation_mask = df["ORDER_DATE"] == end_date_i
         df_i_validation = df[df_i_validation_mask]
@@ -119,8 +116,6 @@ def split_data(
                 )
             df_i_validation = df_i_validation[df_i_validation_mask]
 
-            # håll det till en dataframe om det går?
-
             if not (df_i_train.empty or df_i_validation.empty):
                 if encode:
                     splits.append(
@@ -152,15 +147,9 @@ def generate_random_predictions(splits: list[dict], same=False) -> list[dict]:
         random_prob_space = rng.random(n)
         return (random_prob_space / random_prob_space.sum()).tolist()
 
-        # ha fortfarande args.thesis
-
-        # fixa lower på product level description
-        # bex_data = bex_data[thesis_mask]
-
     random_bex_probs = []
 
     for split in splits:
-        # print(split['truth'].shape)
         # get only unique products
         bex_products_in_split = list(set(split["train"]["BEX_PRODUCT_NO"].tolist()))
         n_products_in_split = len(bex_products_in_split)
@@ -173,19 +162,11 @@ def generate_random_predictions(splits: list[dict], same=False) -> list[dict]:
             for _ in range(split["validation"].shape[0]):
                 individual_probabilities.append(random_bex_prob)
 
-            # individual_probabilities.append(
-            #     random_bex_prob for _ in range(split["validation"].shape[0])
-            # )
-
         else:
             for _ in range(split["validation"].shape[0]):
                 individual_probabilities.append(
                     generate_random_probabiliy_space(n_products_in_split)
                 )
-            # individual_probabilities.append(
-            #     generate_random_probabiliy_space(n_products_in_split)
-            #     for _ in range(split["validation"].shape[0])
-            # )
 
         random_bex_probs.append(
             {
@@ -193,8 +174,6 @@ def generate_random_predictions(splits: list[dict], same=False) -> list[dict]:
                 "probabilities_in_split": individual_probabilities,
             }
         )
-    # print("this is how probabilities in split looks like:")
-    # print(random_bex_probs[0]["probabilities_in_split"])
 
     return random_bex_probs
 
@@ -206,20 +185,13 @@ def generate_popular_predictions(splits: list[dict]) -> list[dict]:
     popular_bex_probs = []
 
     for split in splits:
-        # print(split['truth'].shape)
         # get only unique products
         bex_products_in_split = list(set(split["train"]["BEX_PRODUCT_NO"].tolist()))
         n_products_in_split = len(bex_products_in_split)
 
-        # print(f'value counts:')
-        # print(split["train"]["BEX_PRODUCT_NO"].value_counts(normalize=True).to_dict().values())
-
         bex_probs_dict = (
             split["train"]["BEX_PRODUCT_NO"].value_counts(normalize=True).to_dict()
         )
-
-        # print("check that this is the values")
-        # print([prod for prod in bex_products_in_split])
 
         individual_probabilities = []
 
@@ -242,8 +214,6 @@ def generate_popular_predictions(splits: list[dict]) -> list[dict]:
 #  same user can appear multiple times if they purchased multiple times on a single day)
 # bex_products_list: list of items in the spli
 # output: 1 or 0 in the metrics for that row
-
-
 def evaluate(prediction_probs: list, bex_products_list: list, truth: str, k=5):
     # get the index of the item that was bought
     truth_index = bex_products_list.index(truth)
@@ -261,24 +231,14 @@ def evaluate(prediction_probs: list, bex_products_list: list, truth: str, k=5):
 # input: s_data: a df containing testing data for each split. s_probs: a dict containing
 # the list of bex products in that split and a list of lists containing probabilities for each row in that split
 # output: average metrics from that split
-
-
 def evaluate_split(s_data, s_probs, k=5):
-    # print(f"this is s_data: {s_data}")
-
-    # # print(s_data['BEX_PRODUCT_NO'].tolist())
-    # # print(f"this is s_probs: {s_probs}")
-    # print("this is probabilities in split:")
-    # print(s_probs["probabilities_in_split"])
 
     rows_in_split = s_data.shape[0]
     bex_products_list = s_probs["BEX_PRODUCT_NO_IN_SPLIT"]
 
     no_bex_products = len(bex_products_list)
-    # print(f"number of bex products in split: {no_bex_products}")
 
     for i in range(rows_in_split):
-        # kolla så att indexeringen fungerar som jag tänkt
         # get the bex product number of what a customer bought
         truth = s_data.iloc[i]["BEX_PRODUCT_NO"]
 
@@ -295,10 +255,7 @@ def evaluate_split(s_data, s_probs, k=5):
             for key, _ in split_results_dict.items():
                 split_results_dict[key] += metrics[key]
 
-    # for key, _ in split_results_dict.items():
-    #     split_results_dict[key] /= rows_in_split
-    #     # only for the case of one
-    #     actual = split_results_dict[key]
+
 
     # split_results_dict["expected"] = k / no_bex_products
     # split_results_dict["deviation"] = abs(actual - (k / no_bex_products))
@@ -313,27 +270,15 @@ def evaluate_split(s_data, s_probs, k=5):
 
     return split_results_dict
 
-    #     metrics = evaluate(prediction_probs=)
-
-
 # input: list of dataframes containing the training and inference data in the different splits,
 # list of dictionaries containing the bex products and probabilities in each split
 # output: average metrics across the splits
 
-
 def evaluate_splits(splits_data: list[pd.DataFrame], splits_probs: list[dict], k=5):
-    # print(f"this is splits data {splits_data}")
-    # print(f"this is splits probs {splits_probs}")
-
-    # print(f"this is splits probs_i {splits_probs[0]}")
 
     no_splits = len(splits_data)
 
     for i in range(len(splits_data)):
-        # print(splits_data[i])
-        # print(splits_data[i]["train"]["date"].value_counts().sort_index())
-        # print(splits_data[i]["train"]["date"].unique())
-
         metrics = evaluate_split(
             s_data=splits_data[i]["validation"], s_probs=splits_probs[i], k=k
         )
@@ -344,14 +289,8 @@ def evaluate_splits(splits_data: list[pd.DataFrame], splits_probs: list[dict], k
             for key, _ in splits_results_dict.items():
                 splits_results_dict[key] += metrics[key]
 
-    # for key, _ in splits_results_dict.items():
-    #     splits_results_dict[key] /= splits_results_dict["observations"]
-
     splits_results_dict[f"top_{k}_accuracy"] /= splits_results_dict[f"observations"]
 
-    # print(
-    #     f"this is the final results: {splits_results_dict}, expected: {k*no_splits / total_bex_products_count}"
-    # )
     expected = k * no_splits / splits_results_dict["bex_products"]
     deviation = abs(splits_results_dict[f"top_{k}_accuracy"] - expected)
 

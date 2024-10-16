@@ -30,7 +30,6 @@ def date_transform_df(df: pd.DataFrame):
     df["week"] = df["ORDER_DATE"].dt.isocalendar().week.astype("int32")
     return df
 
-# check in this function if there is anything wrong that makes this program crash
 def normalize_transform_df(df: pd.DataFrame):
     columns_to_normalize = ['1D_SALES_QTY_PRODUCT', '14D_SALES_QTY_PRODUCT', '1D_SALES_QTY_BRAND', '14D_SALES_QTY_BRAND', '1D_SALES_QTY_CAT3', '14D_SALES_QTY_CAT3']
     stored_max_values_column_and_day = {column: {} for column in columns_to_normalize}
@@ -178,7 +177,7 @@ if __name__ == "__main__":
         columns=["14D_TOP_100", "COUNTRY_CODE"]
     )
 
-    # apply the training feature engineering in order to not have to repeat it per split
+    # apply the training feature engineering here in order to not have to repeat it per split
     sales_and_products_features = date_transform_df(sales_and_products_features)
     sales_and_products_features = normalize_transform_df(sales_and_products_features)
 
@@ -196,7 +195,7 @@ if __name__ == "__main__":
     product_trends_inference_features["ORDER_DATE"] = pd.to_datetime(
         product_trends_inference_features["ORDER_DATE"]
     )
-    ph = 0
+
     product_trends_inference_features = split_product_data(
         product_trends_inference_features,
         n_days=n_days,
@@ -351,7 +350,6 @@ if __name__ == "__main__":
 
         lightgbm.plot_importance(ranker, ylabel='Features', xlabel='Feature importance (gain)', title=None)
         plt.show()
-        ph = 0
         with open(output_filename, "a") as f:
             if split_count == 0:
                 f.write(f"time to fit ranker (+ feature importance): {time.time() - split_start_time}\n")
@@ -433,7 +431,7 @@ if __name__ == "__main__":
             if user == validation_users[0]:
                 user_start_time = time.time()
 
-            # values only need to be stored for the 3 cities since we have no user features
+            # values only need to be stored for the 3 cities since we have no features for individual users
             if f'{user_city}_ranking' not in split_inference_constants:
 
                 validation_products = product_trends_inference_features_masked.copy()
@@ -617,7 +615,6 @@ if __name__ == "__main__":
         split_results = split_results_keep
         if total_rows == rows_in_split:  # if first split
             total_results = split_results
-            ph = 0
         else:
             for key, _ in split_results.items():
                 total_results[key] += split_results[key]
